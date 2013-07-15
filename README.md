@@ -1,4 +1,4 @@
-vCheck-vCDExchange
+vCheck-Exchange
 ===============
 
 vCheck for Exchange
