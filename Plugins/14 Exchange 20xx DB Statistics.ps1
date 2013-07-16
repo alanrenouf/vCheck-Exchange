@@ -3,7 +3,7 @@ $Header =  "Exchange Database Statistics"
 $Comments = "Exchange DB Statistics"
 $Display = "Table"
 $Author = "Phil Randal"
-$PluginVersion = 2.0
+$PluginVersion = 2.2
 $PluginCategory = "Exchange2010"
 
 # based on http://www.mikepfeiffer.net/2010/03/exchange-2010-database-statistics-with-powershell/
@@ -16,9 +16,13 @@ $PluginCategory = "Exchange2010"
 ##       Sort by Server, Database
 ##       Add last incremental backup date, Circular Logging
 ##       Try to deal with unmounted databases sensibly
+## 2.1 : Add Server name filter
+## 2.2 : Add Exchange version 15 support
 
 function Get-MyDatabaseStatistics {
-  $Databases = Get-MailboxDatabase -Status -ErrorAction SilentlyContinue | Sort Server, Database
+  $Databases = Get-MailboxDatabase -Status -ErrorAction SilentlyContinue |
+    Where { $_.Server -match $exServerFilter } |
+    Sort Server, Name
   foreach($Database in $Databases) {
     If ($Database.DatabaseCreated) {
 	  $MBTot = 0
@@ -61,7 +65,7 @@ function Get-MyDatabaseStatistics {
 		} Else {
 		  $Whitespace = ""
 		}
-	  } Elseif ($Database.ExchangeVersion.ExchangeBuild.Major -eq 14) {
+	  } Elseif ($Database.ExchangeVersion.ExchangeBuild.Major -ge 14) {
         # Exchange 2010
 		$DBSize = $Database.DatabaseSize.ToBytes()
 		$Whitespace = $Database.AvailableNewMailboxSpace.ToBytes() / 1GB

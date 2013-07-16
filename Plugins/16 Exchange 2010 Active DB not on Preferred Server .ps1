@@ -3,7 +3,7 @@ $Header =  "Exchange 2010 Active DB Not on Preferred Server"
 $Comments = "Exchange 2010 Active DB Not on Preferred Server"
 $Display = "Table"
 $Author = "Phil Randal"
-$PluginVersion = 2.1
+$PluginVersion = 2.3
 $PluginCategory = "Exchange2010"
 
 # Start of Settings
@@ -12,11 +12,13 @@ $PluginCategory = "Exchange2010"
 # Changelog
 ## 2.0 : Initial release
 ## 2.1 : Simplify code
+## 2.2 : Add server name filter
+## 2.3 : Allow Exchange version 15
 
 Function GetDBActivation() {
   $DBs=Get-MailboxServer -ErrorAction SilentlyContinue |
-    Where {$_.AdminDisplayVersion.Major -eq 14} |
-	Sort |
+    Where { $_.AdminDisplayVersion -match "Version (14|15)" -and $_.Name -match $exServerFilter } |
+	Sort Name |
 	Get-MailboxDatabase |
 	Sort Identity -Unique |
 	Select Identity, Server, ActivationPreference
