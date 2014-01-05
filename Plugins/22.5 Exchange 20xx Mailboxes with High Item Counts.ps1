@@ -33,20 +33,22 @@ function Get-FolderHighItemCounts {
         $mbxs=Get-Mailbox -Database $Database -Resultsize Unlimited |
           Where { $_.Server -match $exServerFilter } | Select Identity
         $Details = $mbxs | Get-MailboxFolderStatistics |
-                     Where {($_.ItemsInFolder -ge $MinItemCount) -and ($_.FolderType -notlike "RecoverableItem*")} |
-                  Sort-Object -descending ItemsInFolder |
-                  Select @{n="Location";e={([string]$_.Identity).Substring(([string]$_.Identity).LastIndexOf('/')+1)}},
-                    FolderType,
-                    @{n="Folder Size (GB)";e={("{0:N3}" -f ($_.FolderSize.ToMB()/1024)) }},
-                    ItemsInFolder @Selection
+            Where {($_.ItemsInFolder -ge $MinItemCount) -and ($_.FolderType -notlike "RecoverableItem*")} |
+            Sort-Object -descending ItemsInFolder |
+                Select @{n="Location";e={([string]$_.Identity).Substring(([string]$_.Identity).LastIndexOf('/')+1)}},
+                FolderType,
+                @{n="Folder Size (GB)";e={("{0:N3}" -f ($_.FolderSize.ToMB()/1024)) }},
+                ItemsInFolder @Selection
         If ($null -ne $Details) {
           $Header =  "Folders with Highest Item Counts on $($Database.Server) $($Larger)in $Database sorted by descending counts"
           $script:MyReport += Get-CustomHeader $Header $Comments
-              $script:MyReport += Get-HTMLTable $Details
+          $script:MyReport += Get-HTMLTable $Details
           $script:MyReport += Get-CustomHeaderClose
-                }
-          }
         }
+		$mbxs = $null
+		$Details = $null
+      }
+    }
   }
 }
 
@@ -67,14 +69,14 @@ If ($2007Snapin -or $2010Snapin) {
     $Header = "Folders with Item Counts $($Larger)sorted by descending size"
     $mbxs=Get-Mailbox -Resultsize Unlimited |
       Where { $_.ServerName -match $exServerFilter } | Select Identity
-	$mbxs |
-          Get-MailboxFolderStatistics |
-          Where {($_.ItemsInFolder -gt $MinItemCount) -and ($_.FolderType -notlike "RecoverableItem*") } |
+	$mbxs | Get-MailboxFolderStatistics |
+      Where {($_.ItemsInFolder -gt $MinItemCount) -and ($_.FolderType -notlike "RecoverableItem*") } |
       Sort ItemsInFolder -descending |
       Select @{n="Location";e={([string]$_.Identity).Substring(([string]$_.Identity).LastIndexOf('/')+1)}},
              FolderType,
              @{n="Folder Size (GB)";e={("{0:N3}" -f ($_.FolderSize.ToMB()/1024)) }},
             ItemsInFolder @Selection
+	$mbxs = $null
   }
 }
 $Comments = "Mailbox Folders sorted by descending item count"
