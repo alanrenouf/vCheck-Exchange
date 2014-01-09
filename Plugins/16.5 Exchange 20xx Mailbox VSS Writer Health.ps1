@@ -3,8 +3,6 @@
 # http://smtp25.blogspot.co.uk/2014/01/use-to-retrieve-status-of-exchange.html
 
 # Start of Settings
-# Exchange Database Name Filter (Largest) (regular expression, to select all use '.*')
-$exDBFilter=".*"
 # End of Settings
 
 #========================================================================
